@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
+import { DebugPanel } from "./components/DebugPanel";
 import { Header } from "./components/Header";
 import { Providers } from "./providers";
 
@@ -18,6 +19,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Onchain Playground",
   description: "A web3 playground on Base",
+  other: {
+    "base:app_id": "69fd0310a626257d9cd09b8b",
+  },
 };
 
 export default function RootLayout({
@@ -34,6 +38,7 @@ export default function RootLayout({
         <Providers>
           <Header />
           {children}
+          <DebugPanel />
         </Providers>
       </body>
     </html>
