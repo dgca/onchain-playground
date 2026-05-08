@@ -64,9 +64,15 @@ export function useWalletLogger() {
 
         debugLog("info", "provider flags", flags);
 
-        if (typeof p.request === "function") {
-          (p.request as (args: { method: string }) => Promise<unknown>)({
+        if (typeof p.request === "function" && address) {
+          (
+            p.request as (args: {
+              method: string;
+              params: unknown[];
+            }) => Promise<unknown>
+          )({
             method: "wallet_getCapabilities",
+            params: [address],
           })
             .then((caps) => debugLog("info", "wallet_getCapabilities", caps))
             .catch(() =>
