@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useAccount, useDisconnect } from "wagmi";
+import { useConnection, useDisconnect } from "wagmi";
 
 import { activeChain } from "../wagmi";
 import { useEnsIdentity } from "../hooks/useBaseName";
@@ -32,7 +32,7 @@ const DROPDOWN_ITEM: Record<WalletTheme, string> = {
 export function ConnectWalletButton({
   theme: themeProp,
 }: ConnectWalletButtonProps) {
-  const { address, isConnected } = useAccount();
+  const { address, isConnected } = useConnection();
   const { disconnect } = useDisconnect();
   const [modalOpen, setModalOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);

@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useAccount } from "wagmi";
+import { useConnection } from "wagmi";
 
 import { debugLog } from "./useDebugLog";
 
 export function useWalletLogger() {
-  const { address, connector, chain, isConnected } = useAccount();
+  const { address, connector, chain, isConnected } = useConnection();
   const logged = useRef(false);
 
   useEffect(() => {

@@ -1,12 +1,17 @@
 "use client";
 
-import { useAccount, useReadContract, useWriteContract } from "wagmi";
+import { useState } from "react";
+import { useConnection, useReadContract, useWriteContract } from "wagmi";
 
 import { COW_CLICKER_ADDRESS, cowClickerAbi } from "../contracts/cowClicker";
 import { debugLog } from "../hooks/useDebugLog";
 
+const DATA_SUFFIX =
+  "0x62635f796c3277617639750b0080218021802180218021802180218021" as const;
+
 export function CowClicker() {
-  const { address, isConnected } = useAccount();
+  const { address, isConnected } = useConnection();
+  const [appendSuffix, setAppendSuffix] = useState(true);
 
   const { data: user, refetch } = useReadContract({
     address: COW_CLICKER_ADDRESS,
@@ -16,17 +21,18 @@ export function CowClicker() {
     query: { enabled: !!address },
   });
 
-  const { writeContract, isPending } = useWriteContract();
+  const { mutate, isPending } = useWriteContract();
 
   const clicks = user ? Number(user.clicks) : 0;
   const lastClickedAt = user?.updatedAt ? Number(user.updatedAt) : 0;
 
   function handleClick() {
-    writeContract(
+    mutate(
       {
         address: COW_CLICKER_ADDRESS,
         abi: cowClickerAbi,
         functionName: "click",
+        ...(appendSuffix && { dataSuffix: DATA_SUFFIX }),
       },
       {
         onSuccess: () => void refetch(),
@@ -79,6 +85,15 @@ export function CowClicker() {
             </span>
           </p>
         )}
+        <label className="flex items-center justify-center gap-2 pt-2 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={appendSuffix}
+            onChange={(e) => setAppendSuffix(e.target.checked)}
+            className="accent-zinc-900 dark:accent-zinc-100"
+          />
+          <span>Append data suffix</span>
+        </label>
       </div>
     </div>
   );

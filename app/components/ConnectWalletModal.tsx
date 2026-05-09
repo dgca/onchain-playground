@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { useAccount, useConnect, useConnectors, useDisconnect } from "wagmi";
+import { useConnection, useConnect, useConnectors, useDisconnect } from "wagmi";
 import { injected } from "wagmi/connectors";
 
 import { activeChain } from "../wagmi";
@@ -176,7 +176,7 @@ export function ConnectWalletModal({
   const dialogRef = useRef<HTMLDialogElement>(null);
   const allConnectors = useConnectors();
   const { connect, isPending } = useConnect();
-  const { isConnected } = useAccount();
+  const { isConnected } = useConnection();
   const { disconnect } = useDisconnect();
   const [connectingId, setConnectingId] = useState<string | null>(null);
   const [visible, setVisible] = useState(false);
