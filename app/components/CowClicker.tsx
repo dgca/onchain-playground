@@ -3,6 +3,7 @@
 import { useAccount, useReadContract, useWriteContract } from "wagmi";
 
 import { COW_CLICKER_ADDRESS, cowClickerAbi } from "../contracts/cowClicker";
+import { debugLog } from "../hooks/useDebugLog";
 
 export function CowClicker() {
   const { address, isConnected } = useAccount();
@@ -27,7 +28,20 @@ export function CowClicker() {
         abi: cowClickerAbi,
         functionName: "click",
       },
-      { onSuccess: () => void refetch() },
+      {
+        onSuccess: () => void refetch(),
+        onError: (error) => {
+          const err = error as Record<string, unknown>;
+          debugLog("error", "transaction error", {
+            code: err.code,
+            message: err.message,
+            data: err.data,
+            cause: err.cause,
+            details: err.details,
+            name: err.name,
+          });
+        },
+      },
     );
   }
 

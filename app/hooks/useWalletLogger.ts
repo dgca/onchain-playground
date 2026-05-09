@@ -64,13 +64,16 @@ export function useWalletLogger() {
 
         debugLog("info", "provider flags", flags);
 
-        if (typeof p.request === "function" && address) {
-          (
-            p.request as (args: {
-              method: string;
-              params: unknown[];
-            }) => Promise<unknown>
-          )({
+        const rpc =
+          typeof p.request === "function"
+            ? (p.request as (args: {
+                method: string;
+                params?: unknown[];
+              }) => Promise<unknown>)
+            : null;
+
+        if (rpc && address) {
+          rpc({
             method: "wallet_getCapabilities",
             params: [address],
           })
@@ -78,6 +81,32 @@ export function useWalletLogger() {
             .catch(() =>
               debugLog("warn", "wallet_getCapabilities", "not supported"),
             );
+        }
+
+        if (rpc) {
+          rpc({ method: "wallet_getPermissions" })
+            .then((perms) => debugLog("info", "wallet_getPermissions", perms))
+            .catch(() =>
+              debugLog("warn", "wallet_getPermissions", "not supported"),
+            );
+
+          rpc({ method: "metamask_getProviderState" })
+            .then((state) =>
+              debugLog("info", "metamask_getProviderState", state),
+            )
+            .catch(() =>
+              debugLog("warn", "metamask_getProviderState", "not supported"),
+            );
+        }
+
+        if (p.session && typeof p.session === "object") {
+          const session = p.session as Record<string, unknown>;
+          const peer = session.peer as Record<string, unknown> | undefined;
+          debugLog(
+            "info",
+            "walletconnect session.peer.metadata",
+            peer?.metadata ?? "(no peer metadata)",
+          );
         }
       })
       .catch(() => debugLog("warn", "provider", "failed to get"));
