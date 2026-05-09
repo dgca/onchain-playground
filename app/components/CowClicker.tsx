@@ -3,7 +3,13 @@
 import { useState } from "react";
 import { useConnection, useReadContract, useWriteContract } from "wagmi";
 
-import { COW_CLICKER_ADDRESS, cowClickerAbi } from "../contracts/cowClicker";
+import {
+  BASE_USDC_ADDRESS,
+  COW_CLICKER_ADDRESS,
+  TIP_AMOUNT,
+  cowClickerAbi,
+  erc20Abi,
+} from "../contracts/cowClicker";
 import { debugLog } from "../hooks/useDebugLog";
 
 const DATA_SUFFIX =
@@ -22,9 +28,63 @@ export function CowClicker() {
   });
 
   const { mutate, isPending } = useWriteContract();
+  const { mutate: mutateApprove, isPending: isApproving } = useWriteContract();
+  const { mutate: mutateTip, isPending: isTipping } = useWriteContract();
 
   const clicks = user ? Number(user.clicks) : 0;
   const lastClickedAt = user?.updatedAt ? Number(user.updatedAt) : 0;
+
+  function handleApprove() {
+    mutateApprove(
+      {
+        address: BASE_USDC_ADDRESS,
+        abi: erc20Abi,
+        functionName: "approve",
+        args: [COW_CLICKER_ADDRESS, TIP_AMOUNT],
+        ...(appendSuffix && { dataSuffix: DATA_SUFFIX }),
+      },
+      {
+        onSuccess: () => debugLog("info", "approve succeeded"),
+        onError: (error) => {
+          const err = error as Record<string, unknown>;
+          debugLog("error", "approve error", {
+            code: err.code,
+            message: err.message,
+            data: err.data,
+            cause: err.cause,
+            details: err.details,
+            name: err.name,
+          });
+        },
+      },
+    );
+  }
+
+  function handleTip() {
+    mutateTip(
+      {
+        address: COW_CLICKER_ADDRESS,
+        abi: cowClickerAbi,
+        functionName: "tip",
+        args: [TIP_AMOUNT],
+        ...(appendSuffix && { dataSuffix: DATA_SUFFIX }),
+      },
+      {
+        onSuccess: () => debugLog("info", "tip succeeded"),
+        onError: (error) => {
+          const err = error as Record<string, unknown>;
+          debugLog("error", "tip error", {
+            code: err.code,
+            message: err.message,
+            data: err.data,
+            cause: err.cause,
+            details: err.details,
+            name: err.name,
+          });
+        },
+      },
+    );
+  }
 
   function handleClick() {
     mutate(
@@ -94,6 +154,25 @@ export function CowClicker() {
           />
           <span>Append data suffix</span>
         </label>
+      </div>
+
+      <div className="flex gap-3">
+        <button
+          type="button"
+          onClick={handleApprove}
+          disabled={isApproving}
+          className="text-sm font-medium px-4 py-2 rounded-lg bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 hover:opacity-80 transition-opacity disabled:opacity-50"
+        >
+          {isApproving ? "Approving…" : "Approve $0.10 USDC"}
+        </button>
+        <button
+          type="button"
+          onClick={handleTip}
+          disabled={isTipping}
+          className="text-sm font-medium px-4 py-2 rounded-lg bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 hover:opacity-80 transition-opacity disabled:opacity-50"
+        >
+          {isTipping ? "Tipping…" : "Tip the Cow"}
+        </button>
       </div>
     </div>
   );

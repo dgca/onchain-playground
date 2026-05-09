@@ -1,11 +1,23 @@
 export const COW_CLICKER_ADDRESS =
   "0x380858A67A395400ef6f17dC5f00276D46f3E4e5" as const;
 
+export const BASE_USDC_ADDRESS =
+  "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as const;
+
+export const TIP_AMOUNT = 100_000n as const; // 0.10 USDC (6 decimals)
+
 export const cowClickerAbi = [
   {
     type: "function",
     name: "click",
     inputs: [],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "tip",
+    inputs: [{ name: "_amount", type: "uint256" }],
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -36,5 +48,18 @@ export const cowClickerAbi = [
       { name: "updatedAt", type: "uint256" },
     ],
     stateMutability: "view",
+  },
+] as const;
+
+export const erc20Abi = [
+  {
+    type: "function",
+    name: "approve",
+    inputs: [
+      { name: "spender", type: "address" },
+      { name: "amount", type: "uint256" },
+    ],
+    outputs: [{ name: "", type: "bool" }],
+    stateMutability: "nonpayable",
   },
 ] as const;
