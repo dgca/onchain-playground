@@ -4,7 +4,7 @@ export const COW_CLICKER_ADDRESS =
 export const BASE_USDC_ADDRESS =
   "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as const;
 
-export const TIP_AMOUNT = 100_000n as const; // 0.10 USDC (6 decimals)
+export const TIP_AMOUNT = BigInt(100_000); // 0.10 USDC (6 decimals)
 
 export const cowClickerAbi = [
   {
