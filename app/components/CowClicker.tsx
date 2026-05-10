@@ -4,9 +4,11 @@ import { useState } from "react";
 import { useConnection, useReadContract, useWriteContract } from "wagmi";
 
 import {
+  AAVE_V3_POOL_ADDRESS,
   BASE_USDC_ADDRESS,
   COW_CLICKER_ADDRESS,
   TIP_AMOUNT,
+  aavePoolAbi,
   cowClickerAbi,
   erc20Abi,
 } from "../contracts/cowClicker";
@@ -30,6 +32,8 @@ export function CowClicker() {
   const { mutate, isPending } = useWriteContract();
   const { mutate: mutateApprove, isPending: isApproving } = useWriteContract();
   const { mutate: mutateTip, isPending: isTipping } = useWriteContract();
+  const { mutate: mutateRenounce, isPending: isRenouncing } =
+    useWriteContract();
 
   const clicks = user ? Number(user.clicks) : 0;
   const lastClickedAt = user?.updatedAt ? Number(user.updatedAt) : 0;
@@ -74,6 +78,32 @@ export function CowClicker() {
         onError: (error) => {
           const err = error as Record<string, unknown>;
           debugLog("error", "tip error", {
+            code: err.code,
+            message: err.message,
+            data: err.data,
+            cause: err.cause,
+            details: err.details,
+            name: err.name,
+          });
+        },
+      },
+    );
+  }
+
+  function handleRenounce() {
+    mutateRenounce(
+      {
+        address: AAVE_V3_POOL_ADDRESS,
+        abi: aavePoolAbi,
+        functionName: "renouncePositionManagerRole",
+        args: [COW_CLICKER_ADDRESS],
+        ...(appendSuffix && { dataSuffix: DATA_SUFFIX }),
+      },
+      {
+        onSuccess: () => debugLog("info", "renounce succeeded"),
+        onError: (error) => {
+          const err = error as Record<string, unknown>;
+          debugLog("error", "renounce error", {
             code: err.code,
             message: err.message,
             data: err.data,
@@ -173,6 +203,24 @@ export function CowClicker() {
         >
           {isTipping ? "Tipping…" : "Tip the Cow"}
         </button>
+      </div>
+
+      <div className="w-full border-t border-zinc-200 dark:border-zinc-700" />
+
+      <div className="flex flex-col items-center gap-3">
+        <button
+          type="button"
+          onClick={handleRenounce}
+          disabled={isRenouncing}
+          className="text-sm font-medium px-4 py-2 rounded-lg bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 hover:opacity-80 transition-opacity disabled:opacity-50"
+        >
+          {isRenouncing ? "Sending…" : "Aave Renounce PM"}
+        </button>
+        <p className="text-xs text-zinc-400 dark:text-zinc-500 max-w-xs text-center">
+          This action is here to test clear signing on hardware wallet devices.
+          It calls Aave V3&apos;s renouncePositionManagerRole with the
+          CowClicker contract&apos;s address as its argument.
+        </p>
       </div>
     </div>
   );

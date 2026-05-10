@@ -51,6 +51,19 @@ export const cowClickerAbi = [
   },
 ] as const;
 
+export const AAVE_V3_POOL_ADDRESS =
+  "0xA238Dd80C259a72e81d7e4664a9801593F98d1c5" as const;
+
+export const aavePoolAbi = [
+  {
+    type: "function",
+    name: "renouncePositionManagerRole",
+    inputs: [{ name: "user", type: "address" }],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+] as const;
+
 export const erc20Abi = [
   {
     type: "function",
